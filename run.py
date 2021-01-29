@@ -4,6 +4,8 @@ import json
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 
+import base64
+
 
 app = Flask(__name__)
 
@@ -15,12 +17,16 @@ def paintapp():
     if request.method == 'POST':
         filename = request.form['save_fname']
         data = request.form['save_cdata']
-        canvas_image = request.form['save_image']
-        conn = psycopg2.connect(database="paintmyown", user = "nidhin")
-        cur = conn.cursor()
-        cur.execute("INSERT INTO files (name, data, canvas_image) VALUES (%s, %s, %s)", [filename, data, canvas_image])
-        conn.commit()
-        conn.close()
+        # not sending to database but instead:
+        imgdata = base64.b64decode(canvas_image.split(',')[-1])
+        with open(filename, 'wb') as f:
+            f.write(imgdata)
+        # canvas_image = request.form['save_image']
+        # conn = psycopg2.connect(database="paintmyown", user = "nidhin")
+        # cur = conn.cursor()
+        # cur.execute("INSERT INTO files (name, data, canvas_image) VALUES (%s, %s, %s)", [filename, data, canvas_image])
+        # conn.commit()
+        # conn.close()
         return redirect(url_for('save'))        
         
         
